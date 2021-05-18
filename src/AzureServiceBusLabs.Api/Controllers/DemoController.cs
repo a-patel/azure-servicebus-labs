@@ -1,4 +1,5 @@
 ﻿#region Imports
+using AzureServiceBusLabs.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 #endregion
@@ -11,14 +12,18 @@ namespace AzureServiceBusLabs.Api.Controllers
     {
         #region Members
 
+        private readonly IServiceBusSender _serviceBusSender;
+        private readonly IServiceBusReceiver _serviceBusReceiver;
         private readonly ILogger<DemoController> _logger;
 
         #endregion
 
         #region Ctor
 
-        public DemoController(ILogger<DemoController> logger)
+        public DemoController(IServiceBusSender serviceBusSender, IServiceBusReceiver serviceBusReceiver, ILogger<DemoController> logger)
         {
+            _serviceBusSender = serviceBusSender;
+            _serviceBusReceiver = serviceBusReceiver;
             _logger = logger;
         }
 
@@ -29,7 +34,15 @@ namespace AzureServiceBusLabs.Api.Controllers
         [HttpGet]
         public IActionResult SendMessage([FromQuery] string message)
         {
-            return Ok();
+            var result = _serviceBusSender.Send(message);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public IActionResult ReceiveMessage()
+        {
+            var message = _serviceBusReceiver.Receive();
+            return Ok(message);
         }
 
         #endregion

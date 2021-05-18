@@ -1,4 +1,5 @@
 #region Imports
+using AzureServiceBusLabs.Api.Config;
 using AzureServiceBusLabs.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +24,8 @@ namespace AzureServiceBusLabs.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<AzureServiceBusConfig>(Configuration.GetSection("AzureServiceBusConfig"));
+
             services.AddScoped<IServiceBusSender, AzureServiceBusSender>();
             services.AddScoped<IServiceBusReceiver, AzureServiceBusReceiver>();
 
