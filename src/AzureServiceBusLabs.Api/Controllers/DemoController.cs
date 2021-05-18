@@ -1,7 +1,10 @@
 ﻿#region Imports
+using AzureServiceBusLabs.Api.Config;
 using AzureServiceBusLabs.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 #endregion
 
 namespace AzureServiceBusLabs.Api.Controllers
@@ -31,14 +34,25 @@ namespace AzureServiceBusLabs.Api.Controllers
 
         #region Methods
 
-        [HttpGet]
-        public IActionResult SendMessage([FromQuery] string message)
+        [HttpPost]
+        [Route("send")]
+        public IActionResult SendMessage(Message message)
         {
-            var result = _serviceBusSender.Send(message);
+            var options = new JsonSerializerOptions()
+            {
+                MaxDepth = 0,
+                IgnoreNullValues = true,
+                IgnoreReadOnlyProperties = true,
+                ReferenceHandler = ReferenceHandler.Preserve
+            };
+
+            var serializedMessage = JsonSerializer.Serialize(message, options);
+            var result = _serviceBusSender.Send(serializedMessage);
             return Ok(result);
         }
 
         [HttpGet]
+        [Route("receive")]
         public IActionResult ReceiveMessage()
         {
             var message = _serviceBusReceiver.Receive();
